@@ -97,8 +97,14 @@ const CEOCofounder = () => {
         setFormData(initialFormData);
         setSubmitStatus({ type: 'success', message: 'Application submitted successfully! We will be in touch soon.' });
       } else {
-        const errorResult = await response.json();
-        throw new Error(errorResult.message || errorResult.error || 'Failed to submit application');
+        let errorMessage = 'Failed to submit application';
+        try {
+          const errorResult = await response.json();
+          errorMessage = errorResult.message || errorResult.error || errorMessage;
+        } catch (e) {
+          console.error('Could not parse error response:', e);
+        }
+        throw new Error(errorMessage);
       }
     } catch (error: any) {
       console.error('Form submission error:', error);
