@@ -39,32 +39,38 @@ const ApplyFounder = () => {
     console.log('Submitting form data:', submissionData);
 
     try {
-    console.log('Submitting founder application:', submissionData);
+      console.log('Submitting founder application:', submissionData);
 
-    const response = await fetch('/api/send-email', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(submissionData),
-    });
+      const response = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(submissionData),
+      });
 
-    if (response.ok) {
-      const result = await response.json();
-      console.log('Founder application submitted successfully:', result);
-      setFormData({ name: '', email: '', phone: '', linkedin: '', message: '', formType: 'Founder Application' });
-      setSubmitStatus({ type: 'success', message: 'Application submitted successfully! We will be in touch soon.' });
-    } else {
-      const errorResult = await response.json();
-      throw new Error(errorResult.message || 'Failed to submit application');
+      if (response.ok) {
+        const result = await response.json();
+        console.log('Founder application submitted successfully:', result);
+        setFormData({ name: '', email: '', phone: '', linkedin: '', message: '', formType: 'Founder Application' });
+        setSubmitStatus({ type: 'success', message: 'Application submitted successfully! We will be in touch soon.' });
+      } else {
+        let errorMessage = 'Failed to submit application';
+        try {
+          const errorResult = await response.json();
+          errorMessage = errorResult.message || errorMessage;
+        } catch (e) {
+          console.error('Could not parse error response:', e);
+        }
+        throw new Error(errorMessage);
+      }
+    } catch (error: any) {
+      console.error('Form submission error:', error);
+      setSubmitStatus({ 
+        type: 'error', 
+        message: error.message || 'An unexpected error occurred. Please try again.'
+      });
     }
-  } catch (error: any) {
-    console.error('Form submission error:', error);
-    setSubmitStatus({ 
-      type: 'error', 
-      message: error.message || 'An unexpected error occurred. Please try again.'
-    });
-  }
     setIsSubmitting(false);
   };
 

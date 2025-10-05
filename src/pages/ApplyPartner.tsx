@@ -77,8 +77,14 @@ const ApplyPartner = () => {
         setFormData({...initialFormData});
         setSubmitStatus({ type: 'success', message: 'Application submitted successfully! We will be in touch soon.' });
       } else {
-        const errorResult = await response.json();
-        throw new Error(errorResult.message || 'Failed to submit application');
+        let errorMessage = 'Failed to submit application';
+        try {
+          const errorResult = await response.json();
+          errorMessage = errorResult.message || errorMessage;
+        } catch (e) {
+          console.error('Could not parse error response:', e);
+        }
+        throw new Error(errorMessage);
       }
     } catch (error: any) {
       console.error('Exception during form submission:', error);
