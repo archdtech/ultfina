@@ -6,14 +6,8 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 3000,
-    host: true,
-    allowedHosts: [
-      'ws-bf-ee-c-acaa-klwiwzicyz.cn-hongkong-vpc.fcapp.run',
-      'localhost',
-      '127.0.0.1',
-      '.fcapp.run',
-      '.space.z.ai'
-    ],
+    host: '0.0.0.0',
+    allowedHosts: 'all',
     hmr: {
       port: 3000,
       host: true,
