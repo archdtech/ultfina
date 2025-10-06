@@ -1,0 +1,62 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary-color: #FF3D22;
+  --secondary-color: #FF3D22;
+  --accent-color: #AFCFEA;
+  --nav-link-color: #FF3D22;
+  --soft-black: #121212;
+  --gray-black: #1A1A1A;
+}
+
+@layer base {
+  html {
+    font-family: 'Space Grotesk', sans-serif;
+  }
+  
+  body {
+    font-family: 'Space Grotesk', sans-serif;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Space Grotesk', sans-serif;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply px-6 py-3 bg-[#FF3D22] text-white font-medium rounded-full hover:opacity-90 transition-all duration-300;
+  }
+  
+  .btn-secondary {
+    @apply px-6 py-3 border border-[#FF3D22] text-[#FF3D22] font-medium rounded-full hover:bg-[#FF3D22] hover:text-white transition-all duration-300;
+  }
+
+  .btn-outline {
+    @apply px-6 py-3 border border-gray-600 text-white font-medium rounded-full hover:border-white transition-all duration-300;
+  }
+  
+  .btn-sm {
+    @apply px-4 py-2 text-sm;
+  }
+  
+  .btn-lg {
+    @apply px-8 py-4 text-lg;
+  }
+  
+  /* Grid Pattern Background */
+  .bg-grid-pattern {
+    background-image: linear-gradient(to right, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+                      linear-gradient(to bottom, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+  
+  /* Space Grotesk Font */
+  .font-space-grotesk {
+    font-family: 'Space Grotesk', sans-serif;
+  }
+}

@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API URL Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-section {
+            border: 1px solid #ccc;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        pre {
+            background-color: #f5f5f5;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        .success {
+            color: green;
+        }
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>API URL Test</h1>
+    <p>This page tests different API URL patterns to help diagnose routing issues</p>
+
+    <div class="test-section">
+        <h2>Test Endpoints</h2>
+        <button onclick="testEndpoint('/.netlify/functions/test')">Test /.netlify/functions/test</button>
+        <button onclick="testEndpoint('/api/test')">Test /api/test</button>
+        <button onclick="testEndpoint('/.netlify/functions/debug')">Test /.netlify/functions/debug</button>
+        <button onclick="testEndpoint('/api/debug')">Test /api/debug</button>
+        <div id="test-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test Email Function</h2>
+        <button onclick="testEmailFunction('/.netlify/functions/send-email')">Test /.netlify/functions/send-email</button>
+        <button onclick="testEmailFunction('/api/send-email')">Test /api/send-email</button>
+        <div id="email-result"></div>
+    </div>
+
+    <script>
+        // Helper function to display results
+        function displayResult(elementId, data, isError = false) {
+            const element = document.getElementById(elementId);
+            const className = isError ? 'error' : 'success';
+            
+            // Create result container
+            const resultDiv = document.createElement('div');
+            resultDiv.className = className;
+            
+            // Add timestamp
+            const timestamp = document.createElement('p');
+            timestamp.textContent = new Date().toLocaleTimeString();
+            resultDiv.appendChild(timestamp);
+            
+            // Add formatted JSON
+            const pre = document.createElement('pre');
+            pre.textContent = JSON.stringify(data, null, 2);
+            resultDiv.appendChild(pre);
+            
+            // Add to page
+            element.prepend(resultDiv);
+        }
+
+        // Test an endpoint with GET request
+        async function testEndpoint(url) {
+            try {
+                console.log(`Testing endpoint: ${url}`);
+                const response = await fetch(url);
+                console.log(`Response from ${url}:`, response);
+                
+                // Get response text
+                const responseText = await response.text();
+                console.log(`Raw response text from ${url}:`, responseText);
+                
+                let data;
+                try {
+                    // Try to parse as JSON if not empty
+                    data = responseText ? JSON.parse(responseText) : { message: 'Empty response' };
+                } catch (e) {
+                    data = { 
+                        error: 'Invalid JSON response', 
+                        rawResponse: responseText.substring(0, 200) + (responseText.length > 200 ? '...' : ''),
+                        parseError: e.message 
+                    };
+                }
+                
+                displayResult('test-result', {
+                    url: url,
+                    status: response.status,
+                    statusText: response.statusText,
+                    headers: {
+                        'content-type': response.headers.get('content-type')
+                    },
+                    data: data
+                });
+            } catch (error) {
+                console.error(`Error testing endpoint ${url}:`, error);
+                displayResult('test-result', {
+                    url: url,
+                    error: error.message
+                }, true);
+            }
+        }
+
+        // Test the email function with minimal data
+        async function testEmailFunction(url) {
+            try {
+                console.log(`Testing email endpoint: ${url}`);
+                const testData = {
+                    name: 'Test User',
+                    email: 'test@example.com',
+                    formType: 'API Test',
+                    message: 'This is a test message from the API test page',
+                    emailConfigType: 'founder_group'
+                };
+                
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(testData)
+                });
+                
+                console.log(`Response from ${url}:`, response);
+                
+                // Get response text
+                const responseText = await response.text();
+                console.log(`Raw response text from ${url}:`, responseText);
+                
+                let data;
+                try {
+                    // Try to parse as JSON if not empty
+                    data = responseText ? JSON.parse(responseText) : { message: 'Empty response' };
+                } catch (e) {
+                    data = { 
+                        error: 'Invalid JSON response', 
+                        rawResponse: responseText.substring(0, 200) + (responseText.length > 200 ? '...' : ''),
+                        parseError: e.message 
+                    };
+                }
+                
+                displayResult('email-result', {
+                    url: url,
+                    status: response.status,
+                    statusText: response.statusText,
+                    headers: {
+                        'content-type': response.headers.get('content-type')
+                    },
+                    data: data
+                });
+            } catch (error) {
+                console.error(`Error testing email endpoint ${url}:`, error);
+                displayResult('email-result', {
+                    url: url,
+                    error: error.message
+                }, true);
+            }
+        }
+    </script>
+</body>
+</html>

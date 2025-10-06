@@ -1,0 +1,10 @@
+entrypoint = "server-spa.js"
+modules = ["nodejs-18:latest"]
+
+[deployment]
+run = ["npm", "start"]
+build = ["npm", "run", "build"]
+
+[deployment.target]
+kind = "Nodejs"
+runCommand = "npm start"

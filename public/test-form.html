@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultiro Form Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            border: 1px solid #ccc;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        pre {
+            background-color: #f5f5f5;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        .success {
+            color: green;
+        }
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>Ultiro API Test Page</h1>
+    <p>Use this page to test the Netlify functions and API endpoints</p>
+
+    <div class="container">
+        <h2>1. Test Function</h2>
+        <p>Tests the basic Netlify function setup</p>
+        <button onclick="testFunction()">Run Test Function</button>
+        <div id="test-result"></div>
+    </div>
+
+    <div class="container">
+        <h2>2. Test Email Function</h2>
+        <p>Tests the email sending functionality with minimal data</p>
+        <button onclick="testEmailFunction()">Test Email Function</button>
+        <div id="email-result"></div>
+    </div>
+
+    <div class="container">
+        <h2>3. Full Form Test</h2>
+        <p>Tests a complete form submission</p>
+        <button onclick="testFullForm('founder_group')">Test Founder Form</button>
+        <button onclick="testFullForm('partner_group')">Test Partner Form</button>
+        <div id="form-result"></div>
+    </div>
+
+    <script>
+        // Helper function to display results
+        function displayResult(elementId, data, isError = false) {
+            const element = document.getElementById(elementId);
+            const className = isError ? 'error' : 'success';
+            
+            // Create result container
+            const resultDiv = document.createElement('div');
+            resultDiv.className = className;
+            
+            // Add timestamp
+            const timestamp = document.createElement('p');
+            timestamp.textContent = new Date().toLocaleTimeString();
+            resultDiv.appendChild(timestamp);
+            
+            // Add formatted JSON
+            const pre = document.createElement('pre');
+            pre.textContent = JSON.stringify(data, null, 2);
+            resultDiv.appendChild(pre);
+            
+            // Add to page
+            element.prepend(resultDiv);
+        }
+
+        // Test the basic function
+        async function testFunction() {
+            try {
+                const response = await fetch('/.netlify/functions/test');
+                console.log('Test function response:', response);
+                
+                // Get response text first to check if it's empty
+                const responseText = await response.text();
+                console.log('Raw response text:', responseText);
+                
+                let data;
+                try {
+                    // Try to parse as JSON if not empty
+                    data = responseText ? JSON.parse(responseText) : { message: 'Empty response' };
+                } catch (e) {
+                    data = { 
+                        error: 'Invalid JSON response', 
+                        rawResponse: responseText,
+                        parseError: e.message 
+                    };
+                }
+                
+                displayResult('test-result', {
+                    status: response.status,
+                    statusText: response.statusText,
+                    headers: {
+                        'content-type': response.headers.get('content-type')
+                    },
+                    data: data
+                });
+            } catch (error) {
+                console.error('Error testing function:', error);
+                displayResult('test-result', {
+                    error: error.message
+                }, true);
+            }
+        }
+
+        // Test the email function with minimal data
+        async function testEmailFunction() {
+            try {
+                const testData = {
+                    name: 'Test User',
+                    email: 'test@example.com',
+                    formType: 'API Test',
+                    message: 'This is a test message from the API test page'
+                };
+                
+                const response = await fetch('/.netlify/functions/send-email', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(testData)
+                });
+                
+                console.log('Email function response:', response);
+                
+                // Get response text first to check if it's empty
+                const responseText = await response.text();
+                console.log('Raw response text:', responseText);
+                
+                let data;
+                try {
+                    // Try to parse as JSON if not empty
+                    data = responseText ? JSON.parse(responseText) : { message: 'Empty response' };
+                } catch (e) {
+                    data = { 
+                        error: 'Invalid JSON response', 
+                        rawResponse: responseText,
+                        parseError: e.message 
+                    };
+                }
+                
+                displayResult('email-result', {
+                    status: response.status,
+                    statusText: response.statusText,
+                    headers: {
+                        'content-type': response.headers.get('content-type')
+                    },
+                    data: data
+                });
+            } catch (error) {
+                console.error('Error testing email function:', error);
+                displayResult('email-result', {
+                    error: error.message
+                }, true);
+            }
+        }
+
+        // Test a full form submission
+        async function testFullForm(formType) {
+            try {
+                const fullData = {
+                    name: 'Test Full User',
+                    email: 'test-full@example.com',
+                    phone: '123-456-7890',
+                    linkedin: 'https://linkedin.com/in/testuser',
+                    message: 'This is a complete test submission from the API test page',
+                    formType: formType === 'founder_group' ? 'Founder Application' : 'Partner Application',
+                    emailConfigType: formType
+                };
+                
+                const response = await fetch('/.netlify/functions/send-email', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(fullData)
+                });
+                
+                console.log('Full form response:', response);
+                
+                // Get response text first to check if it's empty
+                const responseText = await response.text();
+                console.log('Raw response text:', responseText);
+                
+                let data;
+                try {
+                    // Try to parse as JSON if not empty
+                    data = responseText ? JSON.parse(responseText) : { message: 'Empty response' };
+                } catch (e) {
+                    data = { 
+                        error: 'Invalid JSON response', 
+                        rawResponse: responseText,
+                        parseError: e.message 
+                    };
+                }
+                
+                displayResult('form-result', {
+                    formType: formType,
+                    status: response.status,
+                    statusText: response.statusText,
+                    headers: {
+                        'content-type': response.headers.get('content-type')
+                    },
+                    data: data
+                });
+            } catch (error) {
+                console.error('Error testing full form:', error);
+                displayResult('form-result', {
+                    formType: formType,
+                    error: error.message
+                }, true);
+            }
+        }
+    </script>
+</body>
+</html>
