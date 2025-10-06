@@ -62,37 +62,29 @@ const Contact: React.FC = () => {
     }
 
     try {
-      const web3FormData = new FormData();
-      web3FormData.append("access_key", "ffe2efec-35be-401c-bf12-6aa56b81ba46");
-      web3FormData.append("subject", `Contact Form: ${formData.subject || 'General Inquiry'}`);
-      web3FormData.append("from_name", formData.name);
-      web3FormData.append("email", formData.email);
-      web3FormData.append("message", formData.message);
-      web3FormData.append("company", formData.company);
-      web3FormData.append("phone", formData.phone);
+      // For frontend-only version, simulate form submission
+      const submissionData = {
+        ...formData,
+        formType: 'Contact Form',
+        emailConfigType: 'general'
+      };
       
-      const response = await fetch("https://api.web3forms.com/submit", {
-        method: "POST",
-        body: web3FormData
+      console.log('Submitting contact form:', submissionData);
+      
+      // Simulate API call delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Simulate successful submission
+      console.log('Contact form submitted successfully (frontend-only mode)');
+      setIsSubmitted(true);
+      setFormData({
+        name: '',
+        email: '',
+        subject: '',
+        message: '',
+        company: '',
+        phone: ''
       });
-
-      const data = await response.json();
-
-      if (data.success) {
-        console.log('Contact form submitted successfully via Web3Forms');
-        setIsSubmitted(true);
-        setFormData({
-          name: '',
-          email: '',
-          subject: '',
-          message: '',
-          company: '',
-          phone: ''
-        });
-      } else {
-        console.error("Web3Forms Error:", data);
-        setFormError(data.message || 'There was an error submitting your message. Please try again.');
-      }
     } catch (error) {
       console.error('Error submitting form:', error);
       setFormError('There was an error submitting your message. Please try again.');

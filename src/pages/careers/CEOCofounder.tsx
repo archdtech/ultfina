@@ -86,38 +86,25 @@ const CEOCofounder = () => {
     console.log('Submitting CEO Co-founder application with file upload');
 
     try {
-      const web3FormData = new FormData();
-      web3FormData.append("access_key", "ffe2efec-35be-401c-bf12-6aa56b81ba46");
-      web3FormData.append("subject", `CEO Co-founder Application: ${formData.name}`);
-      web3FormData.append("from_name", formData.name);
-      web3FormData.append("email", formData.email);
-      web3FormData.append("phone", formData.phone);
-      web3FormData.append("linkedin", formData.linkedin);
-      web3FormData.append("coverLetter", formData.coverLetter);
-      web3FormData.append("position", "CEO Co-founder");
-      web3FormData.append("formType", "CEO Co-founder Application");
-      
-      if (formData.resume) {
-        web3FormData.append("attachment", formData.resume);
-      }
-      
-      const response = await fetch("https://api.web3forms.com/submit", {
-        method: "POST",
-        body: web3FormData
+      const response = await fetch('/api/send-career-email', {
+        method: 'POST',
+        body: formDataToSend,
       });
 
-      const data = await response.json();
-
-      if (data.success) {
-        console.log('CEO Co-founder application submitted successfully via Web3Forms');
+      if (response.ok) {
+        const result = await response.json();
+        console.log('CEO Co-founder application submitted successfully:', result);
         setFormData(initialFormData);
         setSubmitStatus({ type: 'success', message: 'Application submitted successfully! We will be in touch soon.' });
       } else {
-        console.error("Web3Forms Error:", data);
-        setSubmitStatus({ 
-          type: 'error', 
-          message: data.message || 'Failed to submit application. Please try again.'
-        });
+        let errorMessage = 'Failed to submit application';
+        try {
+          const errorResult = await response.json();
+          errorMessage = errorResult.message || errorResult.error || errorMessage;
+        } catch (e) {
+          console.error('Could not parse error response:', e);
+        }
+        throw new Error(errorMessage);
       }
     } catch (error: any) {
       console.error('Form submission error:', error);

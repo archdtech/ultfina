@@ -61,36 +61,30 @@ const ApplyPartner = () => {
     console.log('Submitting Partner application:', JSON.stringify(submissionData, null, 2));
 
     try {
-      const web3FormData = new FormData();
-      web3FormData.append("access_key", "ffe2efec-35be-401c-bf12-6aa56b81ba46");
-      web3FormData.append("subject", `Partner Application: ${formData.organizationName}`);
-      web3FormData.append("from_name", formData.name);
-      web3FormData.append("email", formData.email);
-      web3FormData.append("organizationName", formData.organizationName);
-      web3FormData.append("website", formData.website);
-      web3FormData.append("organizationType", formData.organizationType);
-      web3FormData.append("focusArea", formData.focusArea);
-      web3FormData.append("partnershipGoals", formData.partnershipGoals);
-      web3FormData.append("jobTitle", formData.jobTitle);
-      web3FormData.append("formType", "Partner Application");
-      
-      const response = await fetch("https://api.web3forms.com/submit", {
-        method: "POST",
-        body: web3FormData
+      console.log('Submitting partner application:', JSON.stringify(submissionData, null, 2));
+
+      const response = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(submissionData),
       });
 
-      const data = await response.json();
-
-      if (data.success) {
-        console.log('Partner application submitted successfully via Web3Forms');
+      if (response.ok) {
+        const result = await response.json();
+        console.log('Partner application submitted successfully:', result);
         setFormData({...initialFormData});
         setSubmitStatus({ type: 'success', message: 'Application submitted successfully! We will be in touch soon.' });
       } else {
-        console.error("Web3Forms Error:", data);
-        setSubmitStatus({ 
-          type: 'error', 
-          message: data.message || 'Failed to submit application. Please try again.'
-        });
+        let errorMessage = 'Failed to submit application';
+        try {
+          const errorResult = await response.json();
+          errorMessage = errorResult.message || errorMessage;
+        } catch (e) {
+          console.error('Could not parse error response:', e);
+        }
+        throw new Error(errorMessage);
       }
     } catch (error: any) {
       console.error('Exception during form submission:', error);
