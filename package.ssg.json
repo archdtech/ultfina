@@ -1,0 +1,19 @@
+{
+  "name": "ultiro-static-site",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "build:static": "vite build --config vite.config.ssg.ts",
+    "serve:static": "serve dist-static",
+    "build:all": "npm run build:static && npm run build:api",
+    "dev:static": "vite --config vite.config.ssg.ts",
+    "preview:static": "vite preview --config vite.config.ssg.ts"
+  },
+  "devDependencies": {
+    "react-helmet-async": "^2.0.4",
+    "serve": "^14.2.1",
+    "vite-plugin-static-copy": "^1.0.1",
+    "vite-plugin-dts": "^3.7.2"
+  }
+}
