@@ -11,9 +11,10 @@ packages = ["run"]
 language = "nodejs"
 
 [deployment]
-deploymentTarget = "static"
+deploymentTarget = "autoscale"
 build = ["npm", "run", "build"]
 publicDir = "dist"
+run = ["npm", "start"]
 
 [[ports]]
 localPort = 5000
